@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -28,18 +29,56 @@ func employeeHandler(w http.ResponseWriter, req *http.Request) {
 
 	defer db.Close()
 
-	id := req.URL.Query().Get("id")
+	if req.Method == "GET" {
 
-	log.Println(id)
+		id := req.URL.Query().Get("id")
 
-	row := db.QueryRow("Select * FROM test1.employee where id=?", id)
+		log.Println(id)
+		i, _ := strconv.Atoi(id)
 
-	//Adding row
+		row := db.QueryRow("Select * FROM employee where id=?", i)
 
-	name := req.URL.Query().Get("name")
-	city := req.URL.Query().Get("city")
+		//error in row
 
-	rowadd := db.QueryRow("Insert into employee (id, name, city) VALUES (?, ?, ?);", id, name, city)
+		err = row.Scan(&emp.Id, &emp.Name, &emp.City)
+
+		if err != nil {
+			log.Println(err)
+			fmt.Fprintf(w, "Crash!")
+			return
+		}
+
+		empBytes, err := json.Marshal(emp)
+		if err != nil {
+			log.Println(err)
+			fmt.Fprintf(w, "Crash!!!")
+			return
+		}
+
+		fmt.Fprintf(w, string(empBytes))
+
+	} else if req.Method == "POST" {
+
+		// Getting data from POST request body
+		decoder := json.NewDecoder(req.Body)
+
+		type body_struct struct {
+			Name string
+			City string
+		}
+
+		var one body_struct
+
+		err := decoder.Decode(&one)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		//Adding row
+		rowadd := db.Exec("Insert into employee ( name, city) VALUES ( ?",one.Name", ?);",one.City)
+
+	}
 
 	//Creating employee struct
 
