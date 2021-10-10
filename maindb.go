@@ -103,23 +103,4 @@ func employeeHandler(w http.ResponseWriter, req *http.Request) {
 
 	}
 
-	//error in row
-
-	// err = row.Scan(&emp.Id, &emp.Name, &emp.City)
-
-	// if err != nil {
-	// 	log.Println(err)
-	// 	fmt.Fprintf(w, "Crash!")
-	// 	return
-	// }
-
-	// empBytes, err := json.Marshal(emp)
-	// if err != nil {
-	// 	log.Println(err)
-	// 	fmt.Fprintf(w, "Crash!!!")
-	// 	return
-	// }
-
-	// fmt.Fprintf(w, string(empBytes))
-
 }
