@@ -22,12 +22,22 @@ func main() {
 
 func employeeHandler(w http.ResponseWriter, req *http.Request) {
 
-	db, err := sql.Open("mysql", "root:password@tcp(localhost:2000)/test1")
+	db, err := sql.Open("mysql", "root:sam123@tcp(localhost:2000)/test1")
 	if err != nil {
 		log.Println(err)
 	}
 
 	defer db.Close()
+
+	//Creating employee struct
+
+	type employee struct {
+		Id   int    `json:"id"`
+		Name string `json:"name"`
+		City string `json:"city"`
+	}
+
+	emp := employee{}
 
 	if req.Method == "GET" {
 
@@ -76,37 +86,40 @@ func employeeHandler(w http.ResponseWriter, req *http.Request) {
 		}
 
 		//Adding row
-		rowadd := db.Exec("Insert into employee ( name, city) VALUES ( ?",one.Name", ?);",one.City)
+		rowadd, err := db.Exec("Insert into employee (name,city) VALUES (?,?)", one.Name, one.City)
+		if err != nil {
+			log.Println(err)
+			fmt.Fprintf(w, "error in addition in table!")
+			return
+		}
+
+		output, err := rowadd.LastInsertId()
+		if err != nil {
+			log.Println(err)
+			fmt.Fprintf(w, "Conversion")
+			return
+		}
+		fmt.Fprintf(w, "Added = %v ", output)
 
 	}
-
-	//Creating employee struct
-
-	type employee struct {
-		Id   int    `json:"id"`
-		Name string `json:"name"`
-		City string `json:"city"`
-	}
-
-	emp := employee{}
 
 	//error in row
 
-	err = row.Scan(&emp.Id, &emp.Name, &emp.City)
+	// err = row.Scan(&emp.Id, &emp.Name, &emp.City)
 
-	if err != nil {
-		log.Println(err)
-		fmt.Fprintf(w, "Crash!")
-		return
-	}
+	// if err != nil {
+	// 	log.Println(err)
+	// 	fmt.Fprintf(w, "Crash!")
+	// 	return
+	// }
 
-	empBytes, err := json.Marshal(emp)
-	if err != nil {
-		log.Println(err)
-		fmt.Fprintf(w, "Crash!!!")
-		return
-	}
+	// empBytes, err := json.Marshal(emp)
+	// if err != nil {
+	// 	log.Println(err)
+	// 	fmt.Fprintf(w, "Crash!!!")
+	// 	return
+	// }
 
-	fmt.Fprintf(w, string(empBytes))
+	// fmt.Fprintf(w, string(empBytes))
 
 }
